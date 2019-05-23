@@ -1,1 +1,17 @@
-[object Object]
+{
+    "records": [
+        {
+            "name": "Aarberg",
+            "tel": "651416",
+            "address": [
+                {
+                    "street": "Aaberger Str"
+                },
+                {
+                    "city": "Aachen"
+                }
+            ],
+            "email": "aarberg@aachenmail.de"
+        }
+    ]
+}

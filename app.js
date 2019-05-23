@@ -11,18 +11,20 @@ if (args[2] === '-h' || args[2] === '--help') {
     fs.readFile('./help.md', 'UTF-8', (err, data) => err ? console.log(err) : console.log(data))
 }
 if (args[2] === '-get' && !args[3]) {
-    let output = ''
-    let criteria = ''
+    let output = '', criteria = ''
     const rl = readline.createInterface({
         input: process.stdin,
         output: process.stdout
     })
-    rl.question('Search by \'name\' or \'number\'?\n', (answer) => {
-        criteria += answer
-        if (criteria !== 'name' || criteria !== 'number') console.log(`Can't search by ${answer}`), rl.close()
+    rl.question('Search by name or number?\n', (answer) => {
+        criteria = answer
+        if (criteria !== 'name' && criteria !== 'number') console.log(`Can't search by ${answer}`), rl.close()
+        console.table([answer, typeof answer, answer === 'name', criteria, typeof criteria, answer === criteria])
         if (criteria === 'name') {
             rl.question('Insert searched name:\n', (answer) => {
+                console.log('starting search...')
                 for(record of addrs.records) {
+                    console.log('looping...')
                     if (record.name === answer) output = record, console.log(output)
                 }
                 if (!output) console.log(`No matches in database for ${answer}`)
@@ -44,10 +46,7 @@ if (args[2] === '-get' && args[3] === '-a') {
 }
 if (args[2] === '-post') {
     //readline like json, then new object - push
-    let name = ''
-    let tel = ''
-    let address = []
-    let email = ''
+    let name = '', tel = '', address = [], email = ''
     const rl = readline.createInterface({
         input: process.stdin,
         output: process.stdout
