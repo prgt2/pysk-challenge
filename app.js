@@ -1,4 +1,4 @@
-#! /usr/local/n/versions/node/12.2.0/bin/node
+//#! /usr/local/n/versions/node/12.2.0/bin/node
 
 const [readline, fs, args, addrs] = [require('readline'), require('fs'), process.argv, require('./addrs.json')]
 function NewRecord(name, tel, address = [street, city], email) {
@@ -16,12 +16,12 @@ if (args[2] === '-get' && !args[3]) {
         input: process.stdin,
         output: process.stdout
     })
-    rl.question('Search by name or number?\n', (answer) => {
+    rl.question('Search by name or number?\n', answer => {
         criteria = answer
         if (criteria !== 'name' && criteria !== 'number') console.log(`Can't search by ${answer}`), rl.close()
         console.table([answer, typeof answer, answer === 'name', criteria, typeof criteria, answer === criteria])
         if (criteria === 'name') {
-            rl.question('Insert searched name:\n', (answer) => {
+            rl.question('Insert searched name:\n', answer => {
                 console.log('starting search...')
                 for(record of addrs.records) {
                     console.log('looping...')
@@ -31,7 +31,7 @@ if (args[2] === '-get' && !args[3]) {
                 rl.close()
             })
         } else if (criteria === 'number') {
-            rl.question('Insert searched number\n', (answer) => {
+            rl.question('Insert searched number\n', answer => {
                 for(record of addrs.records) {
                     if (record.tel === answer) output = record, console.log(output)
                 }
@@ -51,15 +51,15 @@ if (args[2] === '-post') {
         input: process.stdin,
         output: process.stdout
     })
-    rl.question('Create new record\nName:\n', (answer) => {
+    rl.question('Create new record\nName:\n', answer => {
         name = answer
-        rl.question('Create new record\nTelephone number:\n', (answer) => {
+        rl.question('Create new record\nTelephone number:\n', answer => {
             tel = answer
-            rl.question('Create new record\nStreet:\n', (answer) => {
+            rl.question('Create new record\nStreet:\n', answer => {
                 address[0] = `"street": ${answer}`
-                rl.question('Create new record\nCity:\n', (answer) => {
+                rl.question('Create new record\nCity:\n', answer => {
                     address[1] = `"city": ${answer}`
-                    rl.question('Create new record\nE-mail:\n', (answer) => {
+                    rl.question('Create new record\nE-mail:\n', answer => {
                         email = answer
                         let newRecord = new NewRecord(name, tel, address, email)
                         addrs.records[addrs.records.length] = newRecord
