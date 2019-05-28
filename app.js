@@ -39,6 +39,7 @@ if (args[2] === '-get' && args[3] === '-a') {
 if (args[2] === '-post') {
     //readline like json, then new object - push
     function NewRecord(name, tel, address = [street, city], email) {
+        this.id = addrs.records.length + 1;
         this.name = name;
         this.tel = tel;
         this.adress = address;
@@ -61,9 +62,10 @@ if (args[2] === '-post') {
                         email = answer
                         let newRecord = new NewRecord(name, tel, address, email)
                         addrs.records[addrs.records.length] = (newRecord)
-                        fs.writeFile('./addrs.json', JSON.stringify(addrs), () => {})
-                        console.log(addrs)
-                        rl.close()
+                        fs.writeFile('./addrs.json', JSON.stringify(addrs), () => {
+                            console.log(addrs)
+                            rl.close()
+                        })
                     })
                 })
             })
