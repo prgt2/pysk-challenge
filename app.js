@@ -78,15 +78,16 @@ if (args[2] === '-put') {
         output: process.stdout
     })
     rl.question('Search by name or number?\n', answer => {
+        let override = () => {
+            
+        }
         criteria = answer
         if (criteria !== 'name' && criteria !== 'number') console.log(`Can't search by ${answer}`), rl.close()
         console.table([answer, typeof answer, answer === 'name', criteria, typeof criteria, answer === criteria])
         if (criteria === 'name') {
             rl.question('Insert searched name:\n', answer => {
-                console.log('starting search...')
                 for(record of addrs.records) {
-                    console.log('looping...')
-                    if (record.name === answer) output = record, console.table({...output})
+                    if (record.name === answer) output = record, console.table({...output}), override()
                 }
                 if (!output) console.log(`No matches in database for ${answer}`)
                 rl.close()
@@ -94,7 +95,7 @@ if (args[2] === '-put') {
         } else if (criteria === 'number') {
             rl.question('Insert searched number\n', answer => {
                 for(record of addrs.records) {
-                    if (record.tel === answer) output += record, console.table({...output})
+                    if (record.tel === answer) output = record, console.table({...output}) , override()
                 }
                 if (!output) console.log(`No matches in database for ${answer}`)
                 rl.close()
