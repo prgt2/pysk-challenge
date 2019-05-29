@@ -50,15 +50,15 @@ if (args[2] === '-post') {
         input: process.stdin,
         output: process.stdout
     })
-    rl.question('Create new record\nName:\n', answer => {
+    rl.question('Create new record\nName:  ', answer => {
         name = answer
-        rl.question('Telephone number:\n', answer => {
+        rl.question('Telephone number:  ', answer => {
             tel = answer
-            rl.question('Street:\n', answer => {
+            rl.question('Street:  ', answer => {
                 address[0].street = answer
-                rl.question('City:\n', answer => {
+                rl.question('City:  ', answer => {
                     address[1].city = answer
-                    rl.question('E-mail:\n', answer => {
+                    rl.question('E-mail:  ', answer => {
                         email = answer
                         let newRecord = new NewRecord(name, tel, address, email)
                         addrs.records[addrs.records.length] = (newRecord)
@@ -74,23 +74,50 @@ if (args[2] === '-post') {
 }
 if (args[2] === '-put') {
     //get + post funcionality
-    let output = '', criteria = ''
+    let output = [], criteria = ''
     const rl = readline.createInterface({
         input: process.stdin,
         output: process.stdout
     })
     rl.question('Search by name or number?\n', answer => {
-        let select = () => {
-            rl.question('Specify id of record you want to edit from following records found in database, or create new record', answer => {
-                
+        let override = () => {
+            rl.question(`Edit record\nName (${record.name}):  `, answer => {
+                if (answer) record.name = answer
+                rl.question(`Telephone number (${record.tel}):  `, answer => {
+                    if (answer) record.tel = answer
+                    rl.question(`Street (${record.adress[0].street}):  `, answer => {
+                        if (answer) record.address[0].street = answer
+                        rl.question(`City (${record.adress[0].city}):  `, answer => {
+                            if (answer) record.address[1].city = answer
+                            rl.question(`E-mail (${record.email}):  `, answer => {
+                                if (answer) record.email = answer
+                                fs.writeFile('./addrs.json', JSON.stringify(addrs), () => {
+                                    console.log(addrs)
+                                    rl.close()
+                                })
+                            })
+                        })
+                    })
+                })
             })
         }
-        let override = () => {
-            
+        let select = () => {
+            rl.question('Specify id of record you want to edit from following records found in database, or create new record by typing \'0\'\n', answer => {
+                if (isNaN(answer)) {
+                    console.log('Insert valid id')
+                    rl.close()
+                } else if (answer !== 0) {
+                    for (record of output) {
+                        if (record.id === answer) override(record), console.log('overridden')
+                    }
+                } else {
+                    post()
+                }
+                console.log(output)
+            })
         }
         criteria = answer
         if (criteria !== 'name' && criteria !== 'number') console.log(`Can't search by ${answer}`), rl.close()
-        console.table([answer, typeof answer, answer === 'name', criteria, typeof criteria, answer === criteria])
         if (criteria === 'name') {
             rl.question('Insert searched name:\n', answer => {
                 for(record of addrs.records) {
@@ -102,9 +129,7 @@ if (args[2] === '-put') {
                     override(output[0])
                 } else {
                     select()
-                    override()
                 }
-                rl.close()
             })
         } else if (criteria === 'number') {
             rl.question('Insert searched number\n', answer => {
