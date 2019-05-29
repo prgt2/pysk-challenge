@@ -80,6 +80,11 @@ if (args[2] === '-put') {
         output: process.stdout
     })
     rl.question('Search by name or number?\n', answer => {
+        let select = () => {
+            rl.question('Specify id of record you want to edit from following records found in database, or create new record', answer => {
+                
+            })
+        }
         let override = () => {
             
         }
@@ -89,17 +94,24 @@ if (args[2] === '-put') {
         if (criteria === 'name') {
             rl.question('Insert searched name:\n', answer => {
                 for(record of addrs.records) {
-                    if (record.name === answer) output = record, console.table({...output}), override()
+                    if (record.name === answer) output[output.length] = record, console.table({...output})
                 }
-                if (!output) console.log(`No matches in database for ${answer}`)
+                if (!output.length) {
+                    console.log(`No matches in database for ${answer}`)
+                } else if (output.length === 1) {
+                    override(output[0])
+                } else {
+                    select()
+                    override()
+                }
                 rl.close()
             })
         } else if (criteria === 'number') {
             rl.question('Insert searched number\n', answer => {
                 for(record of addrs.records) {
-                    if (record.tel === answer) output = record, console.table({...output}) , override()
+                    if (record.tel === answer) output[output.length] = record, console.table({...output})
                 }
-                if (!output) console.log(`No matches in database for ${answer}`)
+                if (!output.length) console.log(`No matches in database for ${answer}`)
                 rl.close()
             })
         }
