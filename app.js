@@ -2,10 +2,7 @@
 
 const [readline, fs, args, addrs] = [require('readline'), require('fs'), process.argv, require('./addrs.json')]
 
-if (args[2] === '-h' || args[2] === '--help' || !args[2]) {
-    fs.readFile('./help.md', 'UTF-8', (err, data) => err ? console.log(err) : console.log(data))
-}
-if (args[2] === '-get' && !args[3]) {
+let search = () => {
     let output = [], criteria = ''
     const rl = readline.createInterface({
         input: process.stdin,
@@ -17,24 +14,43 @@ if (args[2] === '-get' && !args[3]) {
         if (criteria === 'name') {
             rl.question('Insert searched name:\n', answer => {
                 for(record of addrs.records) {
-                    if (record.name === answer) output[output.length] = record, console.table({...output})
+                    if (record.name === answer) output[output.length] = record
                 }
-                if (!output.length) console.log(`No matches in database for ${answer}`)
-                rl.close()
+                if (!output.length) {
+                    console.log(`No matches in database for ${answer}`)
+                    rl.close()
+                } else {
+                    rl.close()
+                    console.table({...output})
+                    return output
+                }
             })
         } else if (criteria === 'number') {
             rl.question('Insert searched number\n', answer => {
                 for(record of addrs.records) {
-                    if (record.tel === answer) output[output.length] = record, console.table({...output})
+                    if (record.tel === answer) output[output.length] = record
                 }
-                if (!output.length) console.log(`No matches in database for ${answer}`)
-                rl.close()
+                if (!output.length) {
+                    console.log(`No matches in database for ${answer}`)
+                } else {
+                    rl.close()
+                    return output
+                }
             })
         }
     })
 }
+
+if (args[2] === '-h' || args[2] === '--help' || !args[2]) {
+    fs.readFile('./help.md', 'UTF-8', (err, data) => err ? console.log(err) : console.log(data))
+}
+if (args[2] === '-get' && !args[3]) {
+    search()
+}
 if (args[2] === '-get' && args[3] === '-a') {
-    //get all and parse
+    let output = []
+    for (record of addrs.records) output[output.length] = record
+    console.table(output)
 }
 if (args[2] === '-post') {
     //readline like json, then new object - push
@@ -72,9 +88,15 @@ if (args[2] === '-post') {
         })
     })
 }
+
+
 if (args[2] === '-put') {
     //get + post funcionality
-    let output = [], criteria = ''
+    async function put() {
+        await search()
+    }
+    put().then(console.log('done'))
+    /*let output = [], criteria = ''
     const rl = readline.createInterface({
         input: process.stdin,
         output: process.stdout
@@ -140,7 +162,7 @@ if (args[2] === '-put') {
                 rl.close()
             })
         }
-    })
+    })*/
 }
 if (args[2] === '-del') {
     //get + del
