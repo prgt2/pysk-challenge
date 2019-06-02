@@ -5,7 +5,7 @@ const rl = readline.createInterface({
     input: process.stdin,
     output: process.stdout
 })
-let search = (cb) => {
+let search = cb => {
     let output = [], criteria = ''
     rl.question('Search by name or number?\n', answer => {
         criteria = answer
@@ -19,8 +19,11 @@ let search = (cb) => {
                     console.log(`No matches in database for ${answer}`)
                     rl.close()
                 } else {
-                    rl.close()
-                    if (cb) cb(output)
+                    if (cb) {
+                        cb(output)
+                    } else {
+                        rl.close()
+                    }
                 }
             })
         } else if (criteria === 'number') {
@@ -30,20 +33,60 @@ let search = (cb) => {
                 }
                 if (!output.length) {
                     console.log(`No matches in database for ${answer}`)
-                } else {
                     rl.close()
-                    if (cb) cb(output)
+                } else {
+                    if (cb) {
+                        cb(output)
+                    } else {
+                        rl.close()
+                    }
                 }
             })
         }
     })
 }
-
+let select = output => {
+    console.table(output)
+    rl.question('Specify id of record you want to edit from following records found in database, or create new record by typing \'0\'\n', answer => {
+        if (isNaN(answer)) {
+            console.log('Insert valid id')
+            rl.close()
+        } else if (answer !== 0) {
+            for (record of output) {
+                if (record.id === answer) output[0] = record, override(output), console.log('overridden'), rl.close()
+            }
+        } else {
+            console.log(output)
+            rl.close()
+        }
+    })
+}
+let override = output => {
+    rl.question(`Edit record\nName (${addrs.records[output[0].id - 1].name}):  `, answer => {
+        if (answer) addrs.records[output[0].id - 1].name = answer
+        rl.question(`Telephone number (${addrs.records[output[0].id - 1].tel}):  `, answer => {
+            if (answer) addrs.records[output[0].id - 1].name = answer
+            rl.question(`Street (${addrs.records[output[0].id - 1].adress[0].street}):  `, answer => {
+                if (answer) addrs.records[output[0].id - 1].adress[0].street = answer
+                rl.question(`City (${addrs.records[output[0].id - 1].adress[0].city}):  `, answer => {
+                    if (answer) addrs.records[output[0].id - 1].adress[0].city = answer
+                    rl.question(`E-mail (${addrs.records[output[0].id - 1].email}):  `, answer => {
+                        if (answer) addrs.records[output[0].id - 1].email = answer
+                        fs.writeFile('./addrs.json', JSON.stringify(addrs), () => {
+                            console.log(addrs)
+                            rl.close()
+                        })
+                    })
+                })
+            })
+        })
+    })
+}
 if (args[2] === '-h' || args[2] === '--help' || !args[2]) {
     fs.readFile('./help.md', 'UTF-8', (err, data) => err ? console.log(err) : console.log(data))
 }
 if (args[2] === '-get' && !args[3]) {
-    search((output) => {
+    search( output => {
         console.table(output)
     })
 }
@@ -84,11 +127,9 @@ if (args[2] === '-post') {
         })
     })
 }
-
-
 if (args[2] === '-put') {
     //get + post funcionality
-    search((output) => {
+    search( output => {
         (output.length === 1) ? override(output) : select(output)
     })
 }
@@ -98,40 +139,3 @@ if (args[2] === '-del') {
 /* adresses.records[0].name = 'Udo'
 fs.writeFile('./addrs.json', JSON.stringify(adresses), () => console.log('done'))
  */
-let override = (output) => {
-    rl.question(`Edit record\nName (${addrs.records[output[0].id - 1].name}):  `, answer => {
-        if (answer) addrs.records[output[0].id - 1].name = answer
-        rl.question(`Telephone number (${addrs.records[output[0].id - 1].tel}):  `, answer => {
-            if (answer) addrs.records[output[0].id - 1].name = answer
-            rl.question(`Street (${addrs.records[output[0].id - 1].adress[0].street}):  `, answer => {
-                if (answer) addrs.records[output[0].id - 1].adress[0].street = answer
-                rl.question(`City (${addrs.records[output[0].id - 1].adress[0].city}):  `, answer => {
-                    if (answer) addrs.records[output[0].id - 1].adress[0].city = answer
-                    rl.question(`E-mail (${addrs.records[output[0].id - 1].email}):  `, answer => {
-                        if (answer) addrs.records[output[0].id - 1].email = answer
-                        fs.writeFile('./addrs.json', JSON.stringify(addrs), () => {
-                            console.log(addrs)
-                            rl.close()
-                        })
-                    })
-                })
-            })
-        })
-    })
-}
-let select = (output) => {
-    console.table(output)
-    rl.question('Specify id of record you want to edit from following records found in database, or create new record by typing \'0\'\n', answer => {
-        if (isNaN(answer)) {
-            console.log('Insert valid id')
-            rl.close()
-        } else if (answer !== 0) {
-            for (record of output) {
-                if (record.id === answer) output[0] = record, override(output), console.log('overridden'), rl.close()
-            }
-        } else {
-            console.log(output)
-            post()
-        }
-    })
-}
