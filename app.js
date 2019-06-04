@@ -89,18 +89,19 @@ let override = output => {
 }
 if (args[2] === '-h' || args[2] === '--help' || !args[2]) {
     fs.readFile('./help.md', 'UTF-8', (err, data) => err ? console.log(err) : console.log(data))
+    rl.close()
 }
 if (args[2] === '-get' && !args[3]) {
     search( output => {
         console.table(output)
-        rl.close()
+        process.exit()
     })
 }
 if (args[2] === '-get' && args[3] === '-a') {
     let output = []
     for (record of addrs.records) output[output.length] = record
     console.table(output)
-    rl.close()
+    proccess.exit()
 }
 if (args[2] === '-post') {
     //readline like json, then new object - push
@@ -142,6 +143,9 @@ if (args[2] === '-put') {
 }
 if (args[2] === '-del') {
     //get + del
+    search( output => {
+        output.length === 1 ? deletio(output) : select(output)
+    })
 }
 /* adresses.records[0].name = 'Udo'
 fs.writeFile('./addrs.json', JSON.stringify(adresses), () => console.log('done'))
