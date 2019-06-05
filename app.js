@@ -45,7 +45,7 @@ let search = cb => {
         }
     })
 }
-let select = output => {
+let select = (output, cb) => {
     console.table(output)
     rl.question('Specify id of record you want to edit from following records found in database, or create new record by typing \'0\'\n', answer => {
         if (isNaN(answer) || answer === '') {
@@ -55,7 +55,7 @@ let select = output => {
             for (record of output) {
                 if (record.id == answer) {
                     output = [record]
-                    override(output)
+                    cb(output)
                     break
                 }
             }
@@ -86,6 +86,22 @@ let override = output => {
             })
         })
     })
+}
+let deletio = output => {
+    console.log(addrs.records.length)
+    for (record of addrs.records) {
+        if (record.name == output[0].name && record.number == output[0].number) {
+            let newArray = JSON.stringify(addrs.records)
+            newArray.splice(record.id, 1)
+            console.log(newArray.length)
+            console.log(typeof(addrs.records[1]))
+            fs.writeFile('./addrs.json', JSON.stringify(addrs), () => {
+                console.log(addrs.records.length)
+                rl.close()
+            })
+            break
+        }
+    }
 }
 if (args[2] === '-h' || args[2] === '--help' || !args[2]) {
     fs.readFile('./help.md', 'UTF-8', (err, data) => err ? console.log(err) : console.log(data))
@@ -138,13 +154,13 @@ if (args[2] === '-post') {
 if (args[2] === '-put') {
     //get + post funcionality
     search( output => {
-        output.length === 1 ? override(output) : select(output)
+        output.length === 1 ? override(output) : select(output, override)
     })
 }
 if (args[2] === '-del') {
     //get + del
     search( output => {
-        output.length === 1 ? deletio(output) : select(output)
+        output.length === 1 ? deletio(output) : select(output, deletio)
     })
 }
 /* adresses.records[0].name = 'Udo'
