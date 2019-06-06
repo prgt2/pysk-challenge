@@ -88,17 +88,19 @@ let override = output => {
     })
 }
 let deletio = output => {
-    console.log(addrs.records.length)
     for (record of addrs.records) {
         if (record.name == output[0].name && record.number == output[0].number) {
             addrs.records.splice(record.id - 1, 1)
-            fs.writeFile('./addrs.json', JSON.stringify(addrs), () => {
-                console.log(addrs.records.length)
-                rl.close()
-            })
             break
         }
     }
+    update()
+}
+let update = () => {
+    addrs.records.forEach((record, index) => {
+        if (record.id !== index + 1) record.id = index + 1
+    })
+    fs.writeFile('./addrs.json', JSON.stringify(addrs), () => rl.close())
 }
 if (args[2] === '-h' || args[2] === '--help' || !args[2]) {
     fs.readFile('./help.md', 'UTF-8', (err, data) => err ? console.log(err) : console.log(data))
