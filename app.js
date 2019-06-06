@@ -91,10 +91,7 @@ let deletio = output => {
     console.log(addrs.records.length)
     for (record of addrs.records) {
         if (record.name == output[0].name && record.number == output[0].number) {
-            let newArray = JSON.stringify(addrs.records)
-            newArray.splice(record.id, 1)
-            console.log(newArray.length)
-            console.log(typeof(addrs.records[1]))
+            addrs.records.splice(record.id - 1, 1)
             fs.writeFile('./addrs.json', JSON.stringify(addrs), () => {
                 console.log(addrs.records.length)
                 rl.close()
@@ -166,3 +163,10 @@ if (args[2] === '-del') {
 /* adresses.records[0].name = 'Udo'
 fs.writeFile('./addrs.json', JSON.stringify(adresses), () => console.log('done'))
  */
+/* let myObj = {
+    records: [
+        1, 2, 3
+    ]
+}
+myObj.records.splice(1, 1)
+console.log(myObj.records.length) */
