@@ -105,7 +105,7 @@ let deletio = output => {
 }
 if (args[2] === '-h' || args[2] === '--help' || !args[2]) {
     fs.readFile('./help.md', 'UTF-8', (err, data) => err ? console.log(err) : console.log(data))
-    rl.close()
+    process.exit()
 }
 if (args[2] === '-get' && !args[3]) {
     search( output => {
