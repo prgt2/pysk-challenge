@@ -9,7 +9,7 @@ let search = cb => {
     let output = [], criteria = ''
     rl.question('Search by name or number?\n', answer => {
         criteria = answer
-        if (criteria !== 'name' && criteria !== 'number') console.log(`Can't search by ${answer}`), rl.close()
+        if (criteria !== 'name' && criteria !== 'number') console.log(`Can't search by ${answer}`), search()
         if (criteria === 'name') {
             rl.question('Insert searched name:\n', answer => {
                 for(record of addrs.records) {
@@ -60,9 +60,39 @@ let select = (output, cb) => {
                 }
             }
         } else {
-            console.table(output)
-            rl.close()
+            post()
         }
+    })
+}
+let post = () => {
+    function NewRecord(name, number, address = [street, city], email) {
+        this.id = addrs.records.length + 1;
+        this.name = name;
+        this.number = number;
+        this.address = address;
+        this.email = email;
+    }
+    let name = '', number = '', address = [{'street': ''},{'city': ''}], email = ''
+    rl.question('Create new record\nName:  ', answer => {
+        name = answer
+        rl.question('Telephone number:  ', answer => {
+            number = answer
+            rl.question('Street:  ', answer => {
+                address[0].street = answer
+                rl.question('City:  ', answer => {
+                    address[1].city = answer
+                    rl.question('E-mail:  ', answer => {
+                        email = answer
+                        let newRecord = new NewRecord(name, number, address, email)
+                        addrs.records[addrs.records.length] = (newRecord)
+                        fs.writeFile('./addrs.json', JSON.stringify(addrs), () => {
+                            console.log(addrs)
+                            rl.close()
+                        })
+                    })
+                })
+            })
+        })
     })
 }
 let override = output => {
@@ -119,56 +149,15 @@ if (args[2] === '-get' && args[3] === '-a') {
     proccess.exit()
 }
 if (args[2] === '-post') {
-    //readline like json, then new object - push
-    function NewRecord(name, number, address = [street, city], email) {
-        this.id = addrs.records.length + 1;
-        this.name = name;
-        this.number = number;
-        this.address = address;
-        this.email = email;
-    }
-    let name = '', number = '', address = [{'street': ''},{'city': ''}], email = ''
-    rl.question('Create new record\nName:  ', answer => {
-        name = answer
-        rl.question('Telephone number:  ', answer => {
-            number = answer
-            rl.question('Street:  ', answer => {
-                address[0].street = answer
-                rl.question('City:  ', answer => {
-                    address[1].city = answer
-                    rl.question('E-mail:  ', answer => {
-                        email = answer
-                        let newRecord = new NewRecord(name, number, address, email)
-                        addrs.records[addrs.records.length] = (newRecord)
-                        fs.writeFile('./addrs.json', JSON.stringify(addrs), () => {
-                            console.log(addrs)
-                            rl.close()
-                        })
-                    })
-                })
-            })
-        })
-    })
+    post()
 }
 if (args[2] === '-put') {
-    //get + post funcionality
     search( output => {
         output.length === 1 ? override(output) : select(output, override)
     })
 }
 if (args[2] === '-del') {
-    //get + del
     search( output => {
         output.length === 1 ? deletio(output) : select(output, deletio)
     })
 }
-/* adresses.records[0].name = 'Udo'
-fs.writeFile('./addrs.json', JSON.stringify(adresses), () => console.log('done'))
- */
-/* let myObj = {
-    records: [
-        1, 2, 3
-    ]
-}
-myObj.records.splice(1, 1)
-console.log(myObj.records.length) */
